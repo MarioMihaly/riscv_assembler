@@ -1,62 +1,24 @@
-00 // A <- Mem[0]
-00
-01 // B <- Mem[1]
-01
-02 // Mem[2] <- A
-02
-03 // Mem[3] <- B
-03
-00 // A <- Mem[3]
-03
-01 // B <- Mem[2]
-02
-04 // A <- A + B
-05 // B <- A + B
-15 // B <- A - B
-14 // A <- A - B
-24 // A <- A * B
-25 // B <- A * B
-34 // A <- A << 1
-44 // A <- A >> 1
-35 // B <- A << 1
-45 // B <- A >> 1
-54 // A <- A + 1
-74 // A <- A - 1
-65 // B <- B + 1
-85 // B <- B - 1
-94 // A <- A == B
-95 // B <- A == B
-94 // A <- A == B
-A4 // A <- A > B
-B4 // A <- A < B
-95 // B <- A == B
-B5 // B <- A < B
-A5 // B <- A > B
-65 // B <- B + 1
-C5 // B <- A
-C4 // A <- A
-96 // if A == B go to ROM[41]
-29
-00 // A <- Mem[0]
-00
-B6 // if A < B go to ROM[45]
-2D
-00 // A <- Mem[0]
-00
-A6 // if A > B go to ROM[49]
-31
-00 // A <- Mem[1]
-01
-01 // B <- Mem[1]
-01
-07 // Go to ROM[54]
-36
-34 // A <- A << 1
+00 // A <- Mem[160]
+A0
+02 // Mem[160] <- A
+A0
+00 // A <- Mem[161]
+A1
+02 // Mem[161] <- A
+A1
+02 // Mem[193] <- A
+C1
+00 // A <- Mem[162]
+A2
+02 // Mem[162] <- A
+A2
+02 // Mem[192] <- A
+C0
+00 // A <- Mem[224]
+E0
+02 // Mem[224] <- A
+E0
 08 // Go to Idle state and wait for Interrupts
-09 // Function call to ROM[253]. Context saved.
-FD
-0B // A <- Mem[A]
-0C // B <- Mem[B]
 FF
 FF
 FF
@@ -251,6 +213,44 @@ FF
 FF
 FF
 FF
-0A // Restoring saved context after function call.
-37
-37
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+FF
+00
