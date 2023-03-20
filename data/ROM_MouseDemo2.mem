@@ -1,24 +1,28 @@
 00 // A <- Mem[160]
 A0
-02 // Mem[160] <- A
-A0
+02 // Mem[0] <- A
+00
 00 // A <- Mem[161]
 A1
-02 // Mem[161] <- A
-A1
+02 // Mem[1] <- A
+01
 02 // Mem[193] <- A
 C1
 00 // A <- Mem[162]
 A2
-02 // Mem[162] <- A
-A2
+02 // Mem[2] <- A
+02
 02 // Mem[192] <- A
 C0
-08 // Go to Idle state and wait for Interrupts
 00 // A <- Mem[224]
 E0
+C5 // B <- A
+0C // B <- Mem[B]
 02 // Mem[208] <- A
 D0
+03 // Mem[209] <- B
+D1
+08 // Go to Idle state and wait for Interrupts
 08 // Go to Idle state and wait for Interrupts
 FF
 FF
@@ -248,9 +252,5 @@ FF
 FF
 FF
 FF
-FF
-FF
-FF
-FF
-11
+18
 00
