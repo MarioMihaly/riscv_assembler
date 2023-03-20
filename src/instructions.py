@@ -1,0 +1,116 @@
+from utils import bin_format
+from constants import *
+
+def read_mem_to_A(mem_addr:int, ram_size=RAM_SIZE, check=True):
+    if check:
+        assert mem_addr >= 0 and mem_addr < ram_size,\
+            f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
+    
+    comment = f' // A <- Mem[{mem_addr}]'
+    
+    return '\n'.join([bin_format(INST.READ_MEM_TO_A) + comment, bin_format(mem_addr)])
+
+def read_mem_to_B(mem_addr:int, ram_size=RAM_SIZE, check=True):
+    if check:
+        assert mem_addr >= 0 and mem_addr < ram_size,\
+            f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
+    
+    comment = f' // B <- Mem[{mem_addr}]'
+    
+    return '\n'.join([bin_format(INST.READ_MEM_TO_B) + comment, bin_format(mem_addr)])
+
+def write_A_to_mem(mem_addr:int, ram_size=RAM_SIZE, check=True):
+    if check:
+        assert mem_addr >= 0 and mem_addr < ram_size,\
+            f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
+    
+    comment = f' // Mem[{mem_addr}] <- A'
+    
+    return '\n'.join([bin_format(INST.WRITE_A_TO_MEM) + comment, bin_format(mem_addr)])
+
+def write_B_to_mem(mem_addr:int, ram_size=RAM_SIZE, check=True):
+    if check:
+        assert mem_addr >= 0 and mem_addr < ram_size,\
+            f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
+    
+    comment = f' // Mem[{mem_addr}] <- B'
+    
+    return '\n'.join([bin_format(INST.WRITE_B_TO_MEM) + comment, bin_format(mem_addr)])
+
+def alu_to_A(op_code:int):
+    assert op_code in ALU_OPS._value2member_map_, f'Op-code {op_code} is not valid!'
+    
+    comment = f' // A <- {ALU_OPS_COMMENTS[op_code]}'
+    
+    return bin_format((op_code << 4) + INST.ALU_OP_TO_A) + comment
+
+def alu_to_B(op_code:int):
+    assert op_code in ALU_OPS._value2member_map_, f'Op-code {op_code} is not valid!'
+    
+    comment = f' // B <- {ALU_OPS_COMMENTS[op_code]}'
+    
+    return bin_format((op_code << 4) + INST.ALU_OP_TO_B) + comment
+
+def breq(mem_addr:int, label=None, rom_size=ROM_SIZE):
+    assert mem_addr >= 0 and mem_addr < rom_size,\
+        f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
+    
+    label = label + ' at ' if label else ''
+    
+    comment = f' // if A == B go to {label}ROM[{mem_addr}]'
+    
+    return '\n'.join([bin_format((BRANCH_TYPES.EQ << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
+
+def bgtq(mem_addr:int, label=None, rom_size=ROM_SIZE):
+    assert mem_addr >= 0 and mem_addr < rom_size,\
+        f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
+    
+    label = label + ' at ' if label else ''
+    
+    comment = f' // if A > B go to {label}ROM[{mem_addr}]'
+    
+    return '\n'.join([bin_format((BRANCH_TYPES.GT << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
+
+def bltq(mem_addr:int, label=None, rom_size=ROM_SIZE):
+    assert mem_addr >= 0 and mem_addr < rom_size,\
+        f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
+    
+    label = label + ' at ' if label else ''
+    
+    comment = f' // if A < B go to {label}ROM[{mem_addr}]'
+    
+    return '\n'.join([bin_format((BRANCH_TYPES.LT << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
+
+def goto(mem_addr:int, label=None, rom_size=ROM_SIZE):
+    assert mem_addr >= 0 and mem_addr < rom_size,\
+        f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
+    
+    label = label + ' at ' if label else ''
+    
+    comment = f' // Go to {label}ROM[{mem_addr}]'
+    
+    return '\n'.join([bin_format(INST.GOTO) + comment, bin_format(mem_addr)])
+
+def goto_idle():
+    comment = ' // Go to Idle state and wait for Interrupts'
+    return bin_format(INST.GOTO_IDLE) + comment
+
+def func_call(mem_addr:int, rom_size=ROM_SIZE):
+    assert mem_addr >= 0 and mem_addr < rom_size,\
+        f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
+    
+    comment = f' // Function call to ROM[{mem_addr}]. Context saved.'
+    
+    return '\n'.join([bin_format(INST.FUNC_CALL) + comment, bin_format(mem_addr)])
+
+def func_return():
+    comment = ' // Restoring saved context after function call.'
+    return bin_format(INST.RETURN) + comment
+
+def deref_A():
+    comment = ' // A <- Mem[A]'
+    return bin_format(INST.DEREF_A) + comment
+
+def deref_B():
+    comment = ' // B <- Mem[B]'
+    return bin_format(INST.DEREF_B) + comment
