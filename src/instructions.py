@@ -42,12 +42,18 @@ def alu_to_A(op_code:int):
     
     comment = f' // A <- {ALU_OPS_COMMENTS[op_code]}'
     
+    if op_code == ALU_OPS.OUT_A:
+        return f'Z{hex(INST.ALU_OP_TO_A)[-1]}' + comment
+    
     return bin_format((op_code << 4) + INST.ALU_OP_TO_A) + comment
 
 def alu_to_B(op_code:int):
     assert op_code in ALU_OPS._value2member_map_, f'Op-code {op_code} is not valid!'
     
     comment = f' // B <- {ALU_OPS_COMMENTS[op_code]}'
+    
+    if op_code == ALU_OPS.OUT_A:
+        return f'Z{hex(INST.ALU_OP_TO_B)[-1]}' + comment
     
     return bin_format((op_code << 4) + INST.ALU_OP_TO_B) + comment
 

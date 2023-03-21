@@ -66,7 +66,17 @@ def get_processor_test_rom():
 
         # Register dereference testing
         deref_A(),
-        deref_B()
+        deref_B(),
+    
+        # Extra feature testing: bitwise ALU operands
+        alu_to_A(ALU_OPS.AND),
+        alu_to_A(ALU_OPS.XOR),
+        alu_to_B(ALU_OPS.NOT_A),
+        alu_to_B(ALU_OPS.AND),
+        alu_to_B(ALU_OPS.OR),
+        alu_to_A(ALU_OPS.NOT_A),
+        alu_to_B(ALU_OPS.XOR),
+        alu_to_A(ALU_OPS.OR)
     ]
     
     # Insert mouse handling function

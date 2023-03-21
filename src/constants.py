@@ -28,6 +28,10 @@ ALU_OPS = Enum('ALU_OPS',
                       'EQ',
                       'GT',
                       'LT',
+                      'AND',
+                      'OR',
+                      'XOR',
+                      'NOT_A',
                       'OUT_A'],
                start=0,
                type=int)
@@ -44,7 +48,11 @@ ALU_OPS_COMMENTS = {
     ALU_OPS.DEC_B : 'B - 1', 
     ALU_OPS.EQ: 'A == B', 
     ALU_OPS.GT : 'A > B', 
-    ALU_OPS.LT : 'A < B', 
+    ALU_OPS.LT : 'A < B',
+    ALU_OPS.AND : 'A AND B',
+    ALU_OPS.OR : 'A OR B',
+    ALU_OPS.XOR : 'A XOR B',
+    ALU_OPS.NOT_A : 'NOT A',
     ALU_OPS.OUT_A : 'A'
 }
 
