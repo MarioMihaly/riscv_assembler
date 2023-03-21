@@ -17,5 +17,5 @@ The decision to generate `.mem` files instead of `.txt` files was taken as `Viva
 Run the following code from the [src](src/) directory in command line. The script will generate a `data` directory in the [src](src/) directory that contains all the required `.mem` files.
 
 ```bash.sh
-python mouse_demo.py
+python3 mouse_demo.py
 ```
