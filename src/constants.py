@@ -1,6 +1,11 @@
 from enum import Enum
 
 ############################################################
+# Default file extension.
+ASSEMBLY_FILE_EXTENSION = '.asm'
+DEFAULT_FILE_EXTENSION = '.mem'
+
+############################################################
 # Width and size of ROM
 ROM_ADDR_WIDTH = 8
 ROM_SIZE = 2 ** ROM_ADDR_WIDTH
@@ -122,12 +127,12 @@ REGISTERS = Enum('REGISTERS', names=['A', 'B'], type=str)
 
 ############################################################
 # Instruction type mapping
-# Memory operation, e.g. <OPP> {A, B} <ADDRESS>
+# Memory operation, e.g. <TOKEN> {A, B} <ADDRESS>
 S_ARG_COUNT = 2
 S_TYPE = {TOKENS.LB.name,
           TOKENS.SB.name}
 
-# Simple register operation, e.g. <OPP> {A, B}
+# Simple register operation, e.g. <TOKEN> {A, B}
 R_ARG_COUNT = 1
 R_TYPE = {TOKENS.ADD.name,
           TOKENS.SUB.name,
@@ -144,19 +149,19 @@ R_TYPE = {TOKENS.ADD.name,
           TOKENS.COPY.name,
           TOKENS.DEREF.name}
 
-# Complex register operation, e.g. <OPP> {A, B} {A, B}
+# Complex register operation, e.g. <TOKEN> {A, B} {A, B}
 RR_ARG_COUNT = 2
 RR_TYPE = {TOKENS.INC.name,
            TOKENS.DEC.name}
 
-# Branch like operation, e.g. <OPP> <LABEL>
+# Branch like operation, e.g. <TOKEN> <LABEL>
 B_ARG_COUNT = 1
 B_TYPE = {TOKENS.BEQ.name,
           TOKENS.BGT.name,
           TOKENS.BLT.name,
           TOKENS.JUMP.name, 
           TOKENS.FUNC.name}
-# Direct operation, e.g. <OPP> (no additional operand)
+# Direct operation, e.g. <TOKEN> (no additional operand)
 D_ARG_COUNT = 0
 D_TYPE = {TOKENS.IDLE.name,
           TOKENS.RETURN.name}

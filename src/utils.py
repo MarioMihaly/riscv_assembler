@@ -37,7 +37,6 @@ def clean_program(program:List[str], prefix:str='//') -> List[str]:
 
         Returns:
             List of string, each string corresponding to an assembly instruction.
-    
     '''
     cleaned_program = []
     
@@ -92,7 +91,16 @@ def get_labels(program:List[str], suffix:str=':') -> Tuple[List[str], Dict[str, 
 
 def update_labels(label_to_idx_dict:Dict[str, int], curr_idx:int):
     '''
-        curr_idx is the index of the current line before adjusting.
+        Function to update label to ROM index mapping for assembly parsing. Only labels
+        after the current line index are updated by incrementing their address.
+
+        Parameters:
+            label_to_idx_dict: Label to current index mapping in the current loop of the
+                               assembl file parsing.
+            curr_idx: Index of the currently processed line.
+
+        Returns:
+            Label to index mapping with necessary adjusments.
     '''
     for key in label_to_idx_dict.keys():
         # Only update labels that are after the current line
@@ -104,6 +112,17 @@ def update_labels(label_to_idx_dict:Dict[str, int], curr_idx:int):
     return label_to_idx_dict
             
 def insert_labels(program:List[str], labels:Dict[str, int]) -> List[str]:
+    '''
+        Function to replace placeholder labels with actual ROM address in the assembly
+        program.
+
+        Parameters:
+            program: HEX encoded assembly program with comments.
+            labels: Label to ROM address mapping for the program.
+
+        Returns:
+            Program with labels replaced with corresponding ROM addresses.
+    '''
     joined_program = '\n'.join(program)
     
     for key in labels.keys():
@@ -122,7 +141,7 @@ def convert_hex(num:str) -> int:
             Integer value of hexadecimal number.
             
         Raises:
-            InvalidAddressException if the provided 
+            InvalidAddressException if the provided address is not a valid HEX value.
     '''
     if not isinstance(num, str): return num
     try:
@@ -150,7 +169,7 @@ def bin_format(value:Union[int, str]) -> str:
     assert 0 <= num < 2**8, f'Number {num} is too big for 8-bit representation!'
     return f'{num:02X}'
 
-def insert_functions(program:List[str], functions:List[Tuple[List[str], int]], rom_size:int=ROM_SIZE):
+def insert_functions(program:List[str], functions:List[Tuple[List[str], int]], rom_size:int=ROM_SIZE) -> List[str]:
     '''
         Function to insert functions at a specific locations.
         
@@ -165,7 +184,7 @@ def insert_functions(program:List[str], functions:List[Tuple[List[str], int]], r
             Copy of the program with inserted functions.
             
         Raises:
-            AssertionError: if function with given start index doesn't fit in ROM OR
+            AssertionError: if function with given start index doesn't fit in ROM or
                             if region is already occupied in ROM where function is inserted.
     
     '''
@@ -191,7 +210,7 @@ def insert_functions(program:List[str], functions:List[Tuple[List[str], int]], r
     
     return prog_copy
 
-def generate_rom(program:List[str], filename:str, size:int=ROM_SIZE):
+def generate_rom(program:List[str], filename:str, size:int=ROM_SIZE) -> None:
     '''
         Function to generate ROM .mem file from a program and write it to a file.
         
@@ -216,7 +235,7 @@ def generate_rom(program:List[str], filename:str, size:int=ROM_SIZE):
     with open(filename, 'w') as f:
         f.write(rom)
         
-def generate_ram(data_entries:List[Tuple[int, str]], filename, size=RAM_SIZE):
+def generate_ram(data_entries:List[Tuple[int, str]], filename, size=RAM_SIZE) -> None:
     '''
         Function to generate RAM .mem file from entries and write it to a file.
         

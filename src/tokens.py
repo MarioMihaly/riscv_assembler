@@ -9,7 +9,17 @@ from utils import update_labels
 # Instruction type parsing functions
 def parse_S(line:str) -> str:
     '''
-        Function to parse preprocessed S-Type instructions.
+        Function to parse preprocessed S-Type instructions, e.g. <TOKEN> {A, B} <ADDRESS>.
+
+        Parameters:
+            line: String corresponding to an S-Type instruction.
+            
+        Returns:
+            String corresponding to the HEX representation of the instruction.
+            
+        Raises:
+            InvalidArgumentException if incorrect number of arguments found.
+            InvalidRegisterException if the target register is not supported.
     '''
     args = line.split()
     if len(args) != S_ARG_COUNT + 1:
@@ -23,7 +33,7 @@ def parse_S(line:str) -> str:
     
     if reg not in REGISTERS._member_map_:
         raise exc.InvalidRegisterException(f'Register {reg} provided for {token} \
-                                           is not supported. Use one of {REGISTERS} instead.')
+                                           is not supported. Use one of {REGISTERS._member_names_} instead.')
     
     opps_A = {
         TOKENS.LB.name : lambda: inst.read_mem_to_A(addr, check=False),
@@ -41,7 +51,17 @@ def parse_S(line:str) -> str:
     
 def parse_R(line:str) -> str:
     '''
-        Function to parse R-Type instructions.
+        Function to parse R-Type instructions, e.g. <TOKEN> {A, B}.
+
+        Parameters:
+            line: String corresponding to an R-Type instruction.
+            
+        Returns:
+            String corresponding to the HEX representation of the instruction.
+            
+        Raises:
+            InvalidArgumentException if incorrect number of arguments found.
+            InvalidRegisterException if the target register is not supported.
     '''
     args = line.split()
     if len(args) != R_ARG_COUNT + 1:
@@ -54,7 +74,7 @@ def parse_R(line:str) -> str:
     
     if reg not in REGISTERS._member_map_:
         raise exc.InvalidRegisterException(f'Register {reg} provided for {token} \
-                                           is not supported. Use one of {REGISTERS} instead.')
+                                           is not supported. Use one of {REGISTERS._member_names_} instead.')
         
     opps_A = {
         TOKENS.ADD.name   : lambda: inst.alu_to_A(ALU_OPS.ADD),
@@ -96,17 +116,16 @@ def parse_R(line:str) -> str:
     
 def parse_RR(line:str) -> str:
     '''
-        Function to parse RR-Type instructions.
+        Function to parse RR-Type instructions, e.g. e.g. <TOKEN> {A, B} {A, B}.
         
         Parameters:
-            token: Token of RR-Type instruction to parse.
-            target_reg: Register to store result of instruction.
-            source_reg: Register to operate on.
+            line: String corresponding to an RR-Type instruction.
             
         Returns:
             String corresponding to the HEX representation of the instruction.
             
         Raises:
+            InvalidArgumentException if incorrect number of arguments found.
             InvalidRegisterException if the target or source register is not supported.
     '''
     args = line.split()
@@ -121,10 +140,10 @@ def parse_RR(line:str) -> str:
     
     if target_reg not in REGISTERS._member_map_:
         raise exc.InvalidRegisterException(f'Target register {target_reg} provided for {token} \
-                                           is not supported. Use one of {REGISTERS} instead.')
+                                           is not supported. Use one of {REGISTERS._member_names_} instead.')
     if source_reg not in REGISTERS:
         raise exc.InvalidRegisterException(f'Source register {source_reg} provided for {token} \
-                                           is not supported. Use one of {REGISTERS} instead.')
+                                           is not supported. Use one of {REGISTERS._member_names_} instead.')
       
     opps_A = {
         REGISTERS.A.name : {
@@ -154,8 +173,16 @@ def parse_RR(line:str) -> str:
 
 def parse_B(line:str):
     '''
-        Function to parse B-Type instructions.
-    
+        Function to parse B-Type instructions, e.g. <TOKEN> <LABEL>.
+
+        Parameters:
+            line: String corresponding to an B-Type instruction.
+            
+        Returns:
+            String corresponding to the HEX representation of the instruction.
+            
+        Raises:
+            InvalidArgumentException if incorrect number of arguments found.
     '''
     args = line.split()
     if len(args) != B_ARG_COUNT + 1:
@@ -178,7 +205,16 @@ def parse_B(line:str):
     
 def parse_D(line:str):
     '''
-        Function to parse D-Type instructions.
+        Function to parse D-Type instructions, <TOKEN> (no additional operand).
+
+        Parameters:
+            line: String corresponding to an D-Type instruction.
+            
+        Returns:
+            String corresponding to the HEX representation of the instruction.
+            
+        Raises:
+            InvalidArgumentException if incorrect number of arguments found.
     '''
     args = line.split()
     if len(args) != D_ARG_COUNT + 1:
@@ -196,9 +232,23 @@ def parse_D(line:str):
     return opps[token]()
 
 def parse_tokens(program:List[str], label_to_idx_dict:Dict[str, int]) -> List[str]:
+    '''
+        Function to parse tokens in a program and update label mapping accordingly.
+
+        Parameters:
+            program: List of string corresponding to the cleaned lines of the assembly file.
+            label_to_idx_dict: Label to original index in the cleaned assembly file mapping.
+    
+        Returns:
+            List of string corresponding to the HEX encoding of the program.
+
+        Raises:
+            InvalidTokenException if token found in an instruction is not supported.
+            ImplementationErrorException if a supported token is not mapped to an instruction type.
+    '''
     parsed_program = []
     
-    # Index to keep track of location in ROM
+    # Index to keep track of location in ROM.
     idx = 0
     
     for line in program:
@@ -238,5 +288,8 @@ def parse_tokens(program:List[str], label_to_idx_dict:Dict[str, int]) -> List[st
             parsed_program.append(parse_D(line))
             idx += 1
             continue
+
+        # If it falls through all checks, unmapped token -> should not happend.
+        raise exc.ImplementationErrorException(f'Token {token} is not mapped to any instruction type!')
         
     return parsed_program, label_to_idx_dict

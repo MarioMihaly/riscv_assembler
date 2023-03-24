@@ -26,3 +26,10 @@ class InvalidAddressException(Exception):
     '''
         Exception to raise when memory address provided as hexadecimal is not valid.
     '''
+    pass
+
+class ImplementationErrorException(Exception):
+    '''
+        Exception to raise if assembler enters state that should not be possible.
+    '''
+    pass
