@@ -1,7 +1,8 @@
-from utils import bin_format
+from utils import bin_format, convert_hex
 from constants import *
 
 def read_mem_to_A(mem_addr:int, ram_size=RAM_SIZE, check=True):
+    mem_addr = convert_hex(mem_addr)
     if check:
         assert mem_addr >= 0 and mem_addr < ram_size,\
             f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
@@ -11,6 +12,7 @@ def read_mem_to_A(mem_addr:int, ram_size=RAM_SIZE, check=True):
     return '\n'.join([bin_format(INST.READ_MEM_TO_A) + comment, bin_format(mem_addr)])
 
 def read_mem_to_B(mem_addr:int, ram_size=RAM_SIZE, check=True):
+    mem_addr = convert_hex(mem_addr)
     if check:
         assert mem_addr >= 0 and mem_addr < ram_size,\
             f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
@@ -20,6 +22,7 @@ def read_mem_to_B(mem_addr:int, ram_size=RAM_SIZE, check=True):
     return '\n'.join([bin_format(INST.READ_MEM_TO_B) + comment, bin_format(mem_addr)])
 
 def write_A_to_mem(mem_addr:int, ram_size=RAM_SIZE, check=True):
+    mem_addr = convert_hex(mem_addr)
     if check:
         assert mem_addr >= 0 and mem_addr < ram_size,\
             f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
@@ -29,6 +32,7 @@ def write_A_to_mem(mem_addr:int, ram_size=RAM_SIZE, check=True):
     return '\n'.join([bin_format(INST.WRITE_A_TO_MEM) + comment, bin_format(mem_addr)])
 
 def write_B_to_mem(mem_addr:int, ram_size=RAM_SIZE, check=True):
+    mem_addr = convert_hex(mem_addr)
     if check:
         assert mem_addr >= 0 and mem_addr < ram_size,\
             f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
@@ -58,6 +62,7 @@ def alu_to_B(op_code:int):
     return bin_format((op_code << 4) + INST.ALU_OP_TO_B) + comment
 
 def breq(mem_addr:int, label=None, rom_size=ROM_SIZE):
+    mem_addr = convert_hex(mem_addr)
     assert mem_addr >= 0 and mem_addr < rom_size,\
         f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
     
@@ -68,6 +73,7 @@ def breq(mem_addr:int, label=None, rom_size=ROM_SIZE):
     return '\n'.join([bin_format((BRANCH_TYPES.EQ << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
 
 def bgtq(mem_addr:int, label=None, rom_size=ROM_SIZE):
+    mem_addr = convert_hex(mem_addr)
     assert mem_addr >= 0 and mem_addr < rom_size,\
         f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
     
@@ -78,6 +84,7 @@ def bgtq(mem_addr:int, label=None, rom_size=ROM_SIZE):
     return '\n'.join([bin_format((BRANCH_TYPES.GT << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
 
 def bltq(mem_addr:int, label=None, rom_size=ROM_SIZE):
+    mem_addr = convert_hex(mem_addr)
     assert mem_addr >= 0 and mem_addr < rom_size,\
         f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
     
@@ -88,6 +95,7 @@ def bltq(mem_addr:int, label=None, rom_size=ROM_SIZE):
     return '\n'.join([bin_format((BRANCH_TYPES.LT << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
 
 def goto(mem_addr:int, label=None, rom_size=ROM_SIZE):
+    mem_addr = convert_hex(mem_addr)
     assert mem_addr >= 0 and mem_addr < rom_size,\
         f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
     
@@ -102,6 +110,7 @@ def goto_idle():
     return bin_format(INST.GOTO_IDLE) + comment
 
 def func_call(mem_addr:int, rom_size=ROM_SIZE):
+    mem_addr = convert_hex(mem_addr)
     assert mem_addr >= 0 and mem_addr < rom_size,\
         f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
     

@@ -1,30 +1,54 @@
 import os
 from constants import ROM_SIZE, RAM_SIZE
-from typing import Tuple, List
+from exceptions import InvalidAddressException
+from typing import Tuple, List, Union
 
 def mkdir(path:str):
     '''
         Function to make directory and parents if it doesn't exists already.
         
         Parameters:
-            path: string corresponding to the path to the directory to be created.
+            path: String corresponding to the path to the directory to be created.
     '''
     if not os.path.exists(path):
         os.makedirs(path)
 
-def bin_format(num:int):
+def convert_hex(num:str) -> int:
+    '''
+        Function to convert string hexadecimal to integer to facilitate address checking in integer format.
+        
+        Parameters:
+            num: String corresponding to hexadecimal number to be converted.
+            
+        Returns:
+            Integer value of hexadecimal number.
+            
+        Raises:
+            InvalidAddressException if the provided 
+    '''
+    if not isinstance(num, str): return num
+    try:
+        num = int(num, base=16)
+        return num
+    
+    except ValueError:
+        raise InvalidAddressException(f'String {num} is not a valid hexadecimal value.')
+        
+def bin_format(value:Union[int, str]) -> str:
     '''
         Function to format integer into 8-bit hex representation.
         
         Parameter:
-            num: integer to be formatted.
+            value: Integer or string to be formatted.
             
         Returns:
             String corresponding to formatted number.
             
         Raises:
-            AssertionError if number doesn't fit in 8-bit.
+            AssertionError if value converted to integer doesn't fit in 8-bit.
     '''
+    num = convert_hex(value)
+    
     assert 0 <= num < 2**8, f'Number {num} is too big for 8-bit representation!'
     return f'{num:02X}'
 
