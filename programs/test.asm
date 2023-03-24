@@ -1,5 +1,10 @@
 // This is a comment that will be removed on the first pass
 
+MAIN:   ADD A
+        SUB B
+        JUMP MOUSE
+        BEQ MAIN
+
 MOUSE:  LB A A0 // Read Mouse Status
         SB A 00 // Write mouse status for Seg7
         LB A A1 // Read Mouse X

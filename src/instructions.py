@@ -1,5 +1,6 @@
 from utils import bin_format, convert_hex
 from constants import *
+import exceptions as exc
 
 def read_mem_to_A(mem_addr:int, ram_size=RAM_SIZE, check=True):
     mem_addr = convert_hex(mem_addr)
@@ -61,49 +62,73 @@ def alu_to_B(op_code:int):
     
     return bin_format((op_code << 4) + INST.ALU_OP_TO_B) + comment
 
-def breq(mem_addr:int, label=None, rom_size=ROM_SIZE):
-    mem_addr = convert_hex(mem_addr)
-    assert mem_addr >= 0 and mem_addr < rom_size,\
-        f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
-    
-    label = label + ' at ' if label else ''
-    
-    comment = f' // if A == B go to {label}ROM[{mem_addr}]'
-    
-    return '\n'.join([bin_format((BRANCH_TYPES.EQ << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
+def breq(mem_addr:int=None, label:str=None, rom_size=ROM_SIZE):
+    if mem_addr:
+        mem_addr = convert_hex(mem_addr)
+        assert mem_addr >= 0 and mem_addr < rom_size,\
+            f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
 
-def bgtq(mem_addr:int, label=None, rom_size=ROM_SIZE):
-    mem_addr = convert_hex(mem_addr)
-    assert mem_addr >= 0 and mem_addr < rom_size,\
-        f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
-    
-    label = label + ' at ' if label else ''
-    
-    comment = f' // if A > B go to {label}ROM[{mem_addr}]'
-    
-    return '\n'.join([bin_format((BRANCH_TYPES.GT << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
+        comment = f' // if A == B go to ROM[{mem_addr}]'
 
-def bltq(mem_addr:int, label=None, rom_size=ROM_SIZE):
-    mem_addr = convert_hex(mem_addr)
-    assert mem_addr >= 0 and mem_addr < rom_size,\
-        f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
+        return '\n'.join([bin_format((BRANCH_TYPES.EQ << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
     
-    label = label + ' at ' if label else ''
-    
-    comment = f' // if A < B go to {label}ROM[{mem_addr}]'
-    
-    return '\n'.join([bin_format((BRANCH_TYPES.LT << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
+    if label:
+        comment = f' // if A == B go to ROM[{label}]'
 
-def goto(mem_addr:int, label=None, rom_size=ROM_SIZE):
-    mem_addr = convert_hex(mem_addr)
-    assert mem_addr >= 0 and mem_addr < rom_size,\
-        f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
+        return '\n'.join([bin_format((BRANCH_TYPES.EQ << 4) + INST.BRANCH) + comment, label])
+
+    raise exc.InvalidArgumentException('Either mem_addr or label must be specified for breq function!')
     
-    label = label + ' at ' if label else ''
+def bgtq(mem_addr:int=None, label=None, rom_size=ROM_SIZE):
+    if mem_addr:
+        mem_addr = convert_hex(mem_addr)
+        assert mem_addr >= 0 and mem_addr < rom_size,\
+            f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
+
+        comment = f' // if A > B go to ROM[{mem_addr}]'
+
+        return '\n'.join([bin_format((BRANCH_TYPES.GT << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
     
-    comment = f' // Go to {label}ROM[{mem_addr}]'
+    if label:
+        comment = f' // if A > B go to ROM[{label}]'
+
+        return '\n'.join([bin_format((BRANCH_TYPES.GT << 4) + INST.BRANCH) + comment, label])
     
-    return '\n'.join([bin_format(INST.GOTO) + comment, bin_format(mem_addr)])
+    raise exc.InvalidArgumentException('Either mem_addr or label must be specified for bgtq function!')
+        
+def bltq(mem_addr:int=None, label=None, rom_size=ROM_SIZE):
+    if mem_addr:
+        mem_addr = convert_hex(mem_addr)
+        assert mem_addr >= 0 and mem_addr < rom_size,\
+            f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
+
+        comment = f' // if A < B go to ROM[{mem_addr}]'
+
+        return '\n'.join([bin_format((BRANCH_TYPES.LT << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
+    
+    if label:
+        comment = f' // if A < B go to ROM[{label}]'
+
+        return '\n'.join([bin_format((BRANCH_TYPES.LT << 4) + INST.BRANCH) + comment, label])
+    
+    raise exc.InvalidArgumentException('Either mem_addr or label must be specified for bltq function!')
+
+def goto(mem_addr:int=None, label=None, rom_size=ROM_SIZE):
+    if mem_addr:
+        mem_addr = convert_hex(mem_addr)
+        assert mem_addr >= 0 and mem_addr < rom_size,\
+            f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
+
+        comment = f' // Go to ROM[{mem_addr}]'
+
+        return '\n'.join([bin_format(INST.GOTO) + comment, bin_format(mem_addr)])
+    
+    if label:
+        comment = f' // Go to ROM[{label}]'
+
+        return '\n'.join([bin_format(INST.GOTO) + comment, label])
+    
+    raise exc.InvalidArgumentException('Either mem_addr or label must be specified for goto function!')
 
 def goto_idle():
     comment = ' // Go to Idle state and wait for Interrupts'

@@ -1,9 +1,9 @@
 import os
 from constants import ROM_SIZE, RAM_SIZE
-from exceptions import InvalidAddressException
-from typing import Tuple, List, Union
+import exceptions as exc
+from typing import Tuple, List, Union, Dict
 
-def mkdir(path:str):
+def mkdir(path:str) -> None:
     '''
         Function to make directory and parents if it doesn't exists already.
         
@@ -12,6 +12,104 @@ def mkdir(path:str):
     '''
     if not os.path.exists(path):
         os.makedirs(path)
+
+def read_asm(path:str) -> List[str]:
+    '''
+        Fucntion to read .asm file line-by-line.
+
+        Parameters:
+            path: String corresponding to the path to the .asm file to be read.
+
+        Returns:
+            List of string corresponding to the lines read from the file.
+    '''
+    with open(path, 'r') as f:
+        return f.readlines()
+
+def clean_program(program:List[str], prefix:str='//') -> List[str]:
+    '''
+        Function to clean assembly program. Removes comments based on the specified
+        prefix, leading and trailing white space and makes the whole code upper case.
+
+        Parameters:
+            program: List of string corresponding to the raw program lines.
+            prefix (optional): String indicating the start of a comment.
+
+        Returns:
+            List of string, each string corresponding to an assembly instruction.
+    
+    '''
+    cleaned_program = []
+    
+    for line in program:
+        # Remove empty lines
+        if line.strip() == '': continue
+        
+        idx = line.find(prefix)
+        if idx == -1: cleaned_program.append(line.strip().upper())
+        elif idx == 0: continue
+        else: cleaned_program.append(line[:idx-1].strip().upper())
+            
+    return cleaned_program
+
+def get_labels(program:List[str], suffix:str=':') -> Tuple[List[str], Dict[str, int]]:
+    '''
+        Function to extract labels from program specified by suffix.
+
+        Parameters:
+            program: List of string corresponding to lines of program.
+            suffix (optional): String indicating the end of a label.
+
+        Returns:
+            stripped_program: List of string corresponding to the lines of program without the labels.
+            label_to_idx_dict: Dictionary mapping the labels to their original location in the program
+                               starting from 0.
+
+        Raises:
+            InvalidLabelException: if the label is an empty string or placed on an empty line or comment line.
+    '''
+    label_to_idx_dict = dict()
+    stripped_program = []
+    
+    for label_idx, line in enumerate(program):
+        idx = line.find(suffix)
+        
+        if idx == 0:
+            raise exc.InvalidLabelException(f'Label suffixed by "{suffix}" can\'t be empty in line "{line}"')
+        
+        if idx == len(line) - 1:
+            raise exc.InvalidLabelException(f'Label suffixed by "{suffix}" must be followed by instruction in line "{line}"')
+        
+        if idx > 0:
+            stripped_program.append(line[idx+1:].strip())
+            label = line[:idx]
+            label_to_idx_dict[label] = label_idx
+            continue
+            
+        stripped_program.append(line)
+   
+    return stripped_program, label_to_idx_dict
+
+def update_labels(label_to_idx_dict:Dict[str, int], curr_idx:int):
+    '''
+        curr_idx is the index of the current line before adjusting.
+    '''
+    for key in label_to_idx_dict.keys():
+        # Only update labels that are after the current line
+        if label_to_idx_dict[key] <= curr_idx: continue
+        
+        # Shift address by 1
+        label_to_idx_dict[key] += 1
+   
+    return label_to_idx_dict
+            
+def insert_labels(program:List[str], labels:Dict[str, int]) -> List[str]:
+    joined_program = '\n'.join(program)
+    
+    for key in labels.keys():
+        joined_program = joined_program.replace(key, bin_format(labels[key]))
+        
+    return joined_program.split('\n')
 
 def convert_hex(num:str) -> int:
     '''
@@ -32,7 +130,7 @@ def convert_hex(num:str) -> int:
         return num
     
     except ValueError:
-        raise InvalidAddressException(f'String {num} is not a valid hexadecimal value.')
+        raise exc.InvalidAddressException(f'String {num} is not a valid hexadecimal value.')
         
 def bin_format(value:Union[int, str]) -> str:
     '''

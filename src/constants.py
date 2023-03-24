@@ -1,19 +1,23 @@
 from enum import Enum
 
+############################################################
 # Width and size of ROM
 ROM_ADDR_WIDTH = 8
 ROM_SIZE = 2 ** ROM_ADDR_WIDTH
 
+############################################################
 # Width and size of RAM
 RAM_ADDR_WIDTH = 7
 RAM_SIZE = 2 ** RAM_ADDR_WIDTH
 
+############################################################
 # Base addresses
 MOUSE_BASE_ADDR   = int('0xA0', base=16)
 LEDS_BASE_ADDR    = int('0xC0', base=16)
 SEG7_BASE_ADDR    = int('0xD0', base=16)
 SWITCH_BASE_ADDR  = int('0xE0', base=16)
 
+############################################################
 # ALU op-codes
 ALU_OPS = Enum('ALU_OPS',
                names=['ADD', 
@@ -56,12 +60,14 @@ ALU_OPS_COMMENTS = {
     ALU_OPS.OUT_A : 'A'
 }
 
+############################################################
 # Conditional branch types
 BRANCH_TYPES = Enum('BRANCH_TYPES',
                     names=['EQ', 'GT', 'LT'],
                     start=9,
                     type=int)
 
+############################################################
 # Instruction codes
 INST = Enum('INST',
             names=['READ_MEM_TO_A',
@@ -79,3 +85,87 @@ INST = Enum('INST',
                    'DEREF_B'],
             start=0,
             type=int)
+
+############################################################
+# Assembly tokens supported by the assembler
+TOKENS = Enum('TOKENS',
+              names=[
+                    'LB',
+                    'SB',
+                    'ADD',
+                    'SUB',
+                    'MUL',
+                    'SLA',
+                    'SRA',
+                    'INC',
+                    'DEC',
+                    'SEQ',
+                    'SGT',
+                    'SLT',
+                    'AND',
+                    'OR',
+                    'XOR',
+                    'NOT', 
+                    'COPY',
+                    'BEQ',
+                    'BGT',
+                    'BLT',
+                    'JUMP',
+                    'IDLE',
+                    'FUNC',
+                    'RETURN',
+                    'DEREF'],
+              type=str)
+
+# Registers used by the processor
+REGISTERS = Enum('REGISTERS', names=['A', 'B'], type=str)
+
+############################################################
+# Instruction type mapping
+# Memory operation, e.g. <OPP> {A, B} <ADDRESS>
+S_ARG_COUNT = 2
+S_TYPE = {TOKENS.LB.name,
+          TOKENS.SB.name}
+
+# Simple register operation, e.g. <OPP> {A, B}
+R_ARG_COUNT = 1
+R_TYPE = {TOKENS.ADD.name,
+          TOKENS.SUB.name,
+          TOKENS.MUL.name,
+          TOKENS.SLA.name,
+          TOKENS.SRA.name,
+          TOKENS.SEQ.name,
+          TOKENS.SGT.name,
+          TOKENS.SLT.name,
+          TOKENS.AND.name,
+          TOKENS.OR.name,
+          TOKENS.XOR.name,
+          TOKENS.NOT.name, 
+          TOKENS.COPY.name,
+          TOKENS.DEREF.name}
+
+# Complex register operation, e.g. <OPP> {A, B} {A, B}
+RR_ARG_COUNT = 2
+RR_TYPE = {TOKENS.INC.name,
+           TOKENS.DEC.name}
+
+# Branch like operation, e.g. <OPP> <LABEL>
+B_ARG_COUNT = 1
+B_TYPE = {TOKENS.BEQ.name,
+          TOKENS.BGT.name,
+          TOKENS.BLT.name,
+          TOKENS.JUMP.name, 
+          TOKENS.FUNC.name}
+# Direct operation, e.g. <OPP> (no additional operand)
+D_ARG_COUNT = 0
+D_TYPE = {TOKENS.IDLE.name,
+          TOKENS.RETURN.name}
+
+############################################################
+# Interrupt call labels
+MOUSE_INTERRUPT = 'MOUSE'
+TIMER_INTERRUPT = 'TIMER'
+
+# Interrupt addresses
+MOUSE_INTERRUPT_ADDR = int('FF', base=16)
+TIMER_INTERRUPT_ADDR = int('FE', base=16)
