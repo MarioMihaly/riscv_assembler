@@ -2,7 +2,7 @@ import os
 import sys
 import utils
 import argparse
-from tokens import parse_tokens
+from token_parser import parse_tokens
 import constants as const
 
 def arg_parse() -> argparse.Namespace:

@@ -1,12 +1,9 @@
-from enum import Enum
 from typing import List, Dict
 import exceptions as exc
 import instructions as inst
 from constants import *
 from utils import update_labels
 
-############################################################
-# Instruction type parsing functions
 def parse_S(line:str) -> str:
     '''
         Function to parse preprocessed S-Type instructions, e.g. <TOKEN> {A, B} <ADDRESS>.
