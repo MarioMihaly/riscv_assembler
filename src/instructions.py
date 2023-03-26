@@ -8,7 +8,7 @@ def read_mem_to_A(mem_addr:int, ram_size=RAM_SIZE, check=True):
         assert mem_addr >= 0 and mem_addr < ram_size,\
             f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
     
-    comment = f' // A <- Mem[{mem_addr}]'
+    comment = f' // A <- Mem[0x{bin_format(mem_addr)}]'
     
     return '\n'.join([bin_format(INST.READ_MEM_TO_A) + comment, bin_format(mem_addr)])
 
@@ -18,7 +18,7 @@ def read_mem_to_B(mem_addr:int, ram_size=RAM_SIZE, check=True):
         assert mem_addr >= 0 and mem_addr < ram_size,\
             f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
     
-    comment = f' // B <- Mem[{mem_addr}]'
+    comment = f' // B <- Mem[0x{bin_format(mem_addr)}]'
     
     return '\n'.join([bin_format(INST.READ_MEM_TO_B) + comment, bin_format(mem_addr)])
 
@@ -28,7 +28,7 @@ def write_A_to_mem(mem_addr:int, ram_size=RAM_SIZE, check=True):
         assert mem_addr >= 0 and mem_addr < ram_size,\
             f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
     
-    comment = f' // Mem[{mem_addr}] <- A'
+    comment = f' // Mem[0x{bin_format(mem_addr)}] <- A'
     
     return '\n'.join([bin_format(INST.WRITE_A_TO_MEM) + comment, bin_format(mem_addr)])
 
@@ -38,7 +38,7 @@ def write_B_to_mem(mem_addr:int, ram_size=RAM_SIZE, check=True):
         assert mem_addr >= 0 and mem_addr < ram_size,\
             f'Memory address {mem_addr} out of range for {ram_size} bytes RAM!'
     
-    comment = f' // Mem[{mem_addr}] <- B'
+    comment = f' // Mem[0x{bin_format(mem_addr)}] <- B'
     
     return '\n'.join([bin_format(INST.WRITE_B_TO_MEM) + comment, bin_format(mem_addr)])
 
@@ -68,12 +68,12 @@ def breq(mem_addr:int=None, label:str=None, rom_size=ROM_SIZE):
         assert mem_addr >= 0 and mem_addr < rom_size,\
             f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
 
-        comment = f' // if A == B go to ROM[{mem_addr}]'
+        comment = f' // if A == B go to ROM[0x{bin_format(mem_addr)}]'
 
         return '\n'.join([bin_format((BRANCH_TYPES.EQ << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
     
     if label:
-        comment = f' // if A == B go to ROM[{label}]'
+        comment = f' // if A == B go to ROM[0x{label}]'
 
         return '\n'.join([bin_format((BRANCH_TYPES.EQ << 4) + INST.BRANCH) + comment, label])
 
@@ -85,12 +85,12 @@ def bgtq(mem_addr:int=None, label=None, rom_size=ROM_SIZE):
         assert mem_addr >= 0 and mem_addr < rom_size,\
             f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
 
-        comment = f' // if A > B go to ROM[{mem_addr}]'
+        comment = f' // if A > B go to ROM[0x{bin_format(mem_addr)}]'
 
         return '\n'.join([bin_format((BRANCH_TYPES.GT << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
     
     if label:
-        comment = f' // if A > B go to ROM[{label}]'
+        comment = f' // if A > B go to ROM[0x{label}]'
 
         return '\n'.join([bin_format((BRANCH_TYPES.GT << 4) + INST.BRANCH) + comment, label])
     
@@ -102,12 +102,12 @@ def bltq(mem_addr:int=None, label=None, rom_size=ROM_SIZE):
         assert mem_addr >= 0 and mem_addr < rom_size,\
             f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
 
-        comment = f' // if A < B go to ROM[{mem_addr}]'
+        comment = f' // if A < B go to ROM[0x{bin_format(mem_addr)}]'
 
         return '\n'.join([bin_format((BRANCH_TYPES.LT << 4) + INST.BRANCH) + comment, bin_format(mem_addr)])
     
     if label:
-        comment = f' // if A < B go to ROM[{label}]'
+        comment = f' // if A < B go to ROM[0x{label}]'
 
         return '\n'.join([bin_format((BRANCH_TYPES.LT << 4) + INST.BRANCH) + comment, label])
     
@@ -119,12 +119,12 @@ def goto(mem_addr:int=None, label=None, rom_size=ROM_SIZE):
         assert mem_addr >= 0 and mem_addr < rom_size,\
             f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
 
-        comment = f' // Go to ROM[{mem_addr}]'
+        comment = f' // Go to ROM[0x{bin_format(mem_addr)}]'
 
         return '\n'.join([bin_format(INST.GOTO) + comment, bin_format(mem_addr)])
     
     if label:
-        comment = f' // Go to ROM[{label}]'
+        comment = f' // Go to ROM[0x{label}]'
 
         return '\n'.join([bin_format(INST.GOTO) + comment, label])
     
@@ -140,12 +140,12 @@ def func_call(mem_addr:int=None, label:str=None, rom_size=ROM_SIZE):
         assert mem_addr >= 0 and mem_addr < rom_size,\
             f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
         
-        comment = f' // Function call to ROM[{mem_addr}]. Context saved.'
+        comment = f' // Function call to ROM[0x{bin_format(mem_addr)}]. Context saved.'
         
         return '\n'.join([bin_format(INST.FUNC_CALL) + comment, bin_format(mem_addr)])
 
     if label:
-        comment = f' // Function call to ROM[{label}]. Context saved.'
+        comment = f' // Function call to ROM[0x{label}]. Context saved.'
         
         return '\n'.join([bin_format(INST.FUNC_CALL) + comment, label])
 
