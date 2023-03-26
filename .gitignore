@@ -3,5 +3,10 @@
 *__pycache__
 **/.DS_Store
 
-# Data folder under src dir
+# Data folders
 src/data
+data
+
+# Only add .asm files from programs dir
+programs/*
+!programs/*.asm
