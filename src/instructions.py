@@ -134,14 +134,20 @@ def goto_idle():
     comment = ' // Go to Idle state and wait for Interrupts'
     return bin_format(INST.GOTO_IDLE) + comment
 
-def func_call(mem_addr:int, rom_size=ROM_SIZE):
-    mem_addr = convert_hex(mem_addr)
-    assert mem_addr >= 0 and mem_addr < rom_size,\
-        f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
-    
-    comment = f' // Function call to ROM[{mem_addr}]. Context saved.'
-    
-    return '\n'.join([bin_format(INST.FUNC_CALL) + comment, bin_format(mem_addr)])
+def func_call(mem_addr:int=None, label:str=None, rom_size=ROM_SIZE):
+    if mem_addr:
+        mem_addr = convert_hex(mem_addr)
+        assert mem_addr >= 0 and mem_addr < rom_size,\
+            f'Memory address {mem_addr} out of range for {rom_size} bytes ROM!'
+        
+        comment = f' // Function call to ROM[{mem_addr}]. Context saved.'
+        
+        return '\n'.join([bin_format(INST.FUNC_CALL) + comment, bin_format(mem_addr)])
+
+    if label:
+        comment = f' // Function call to ROM[{label}]. Context saved.'
+        
+        return '\n'.join([bin_format(INST.FUNC_CALL) + comment, label])
 
 def func_return():
     comment = ' // Restoring saved context after function call.'

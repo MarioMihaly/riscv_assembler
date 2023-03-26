@@ -138,7 +138,7 @@ def parse_RR(line:str) -> str:
     if target_reg not in REGISTERS._member_map_:
         raise exc.InvalidRegisterException(f'Target register {target_reg} provided for {token} \
                                            is not supported. Use one of {REGISTERS._member_names_} instead.')
-    if source_reg not in REGISTERS:
+    if source_reg not in REGISTERS._member_map_:
         raise exc.InvalidRegisterException(f'Source register {source_reg} provided for {token} \
                                            is not supported. Use one of {REGISTERS._member_names_} instead.')
       

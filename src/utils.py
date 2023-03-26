@@ -41,8 +41,9 @@ def clean_program(program:List[str], prefix:str='//') -> List[str]:
     cleaned_program = []
     
     for line in program:
+        line = line.strip()
         # Remove empty lines
-        if line.strip() == '': continue
+        if line == '': continue
         
         idx = line.find(prefix)
         if idx == -1: cleaned_program.append(line.strip().upper())
@@ -65,7 +66,8 @@ def get_labels(program:List[str], suffix:str=':') -> Tuple[List[str], Dict[str, 
                                starting from 0.
 
         Raises:
-            InvalidLabelException: if the label is an empty string or placed on an empty line or comment line.
+            InvalidLabelException: if the label is an empty string or placed on an empty line or comment line or
+                                   if a label is not unique.
     '''
     label_to_idx_dict = dict()
     stripped_program = []
@@ -77,11 +79,14 @@ def get_labels(program:List[str], suffix:str=':') -> Tuple[List[str], Dict[str, 
             raise exc.InvalidLabelException(f'Label suffixed by "{suffix}" can\'t be empty in line "{line}"')
         
         if idx == len(line) - 1:
+            print(line)
             raise exc.InvalidLabelException(f'Label suffixed by "{suffix}" must be followed by instruction in line "{line}"')
         
         if idx > 0:
             stripped_program.append(line[idx+1:].strip())
             label = line[:idx]
+            if label in label_to_idx_dict:
+                raise exc.InvalidLabelException(f'Label {label} already used! You can only use each label once and they are case insensitive.')
             label_to_idx_dict[label] = label_idx
             continue
             
