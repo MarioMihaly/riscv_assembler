@@ -119,7 +119,8 @@ def update_labels(label_to_idx_dict:Dict[str, int], curr_idx:int):
 def insert_labels(program:List[str], labels:Dict[str, int]) -> List[str]:
     '''
         Function to replace placeholder labels with actual ROM address in the assembly
-        program.
+        program. Labels are inserted in decreasing lenght to avoid incorrect replacement
+        due to a label being a substring of a longer label.
 
         Parameters:
             program: HEX encoded assembly program with comments.
@@ -130,7 +131,7 @@ def insert_labels(program:List[str], labels:Dict[str, int]) -> List[str]:
     '''
     joined_program = '\n'.join(program)
     
-    for key in labels.keys():
+    for key in sorted(labels.keys(), key=lambda x: len(x), reverse=True):
         joined_program = joined_program.replace(key, bin_format(labels[key]))
         
     return joined_program.split('\n')
