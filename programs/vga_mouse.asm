@@ -3,30 +3,43 @@
 /////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
-// 1. Lets draw the VGA frame -> copy over content of vga.asm
-VGA_LOOP:   FUNC INIT_VARS   // Initialise variables in RAM
-            // At this point X and Y are initialized to 0
-            // Start looping through X
-NEXT_CHECK: FUNC CHECK_X          // Check X coord and set it if needed.
-RETURN_X:   FUNC CHECK_Y          // Check Y coord and set it if needed.
-RETURN_Y:   FUNC CHECK_X_LIMIT  // Check X limit reached and increment X.
-            JUMP NEXT_CHECK     // Do next X check.
-VGA_DONE:   IDLE                // When VGA setup is done, wait for interrupts
+// 1. Initialise variables
+            FUNC INIT_VARS // Initialise variables in RAM
+            JUMP VGA_LOOP   // Draw VGA frame
 
-            // Initialization of VGA X & Y
+/////////////////////////////////////////////////////////////////////
+// Initialization of VGA X & Y
 INIT_VARS:  LB A 00     // Load initial X, Y = 0
             SB A 20     // Initialise X = 0 for VGA
             SB A 21     // Initialise Y = 0 for VGA
+
+            // Unset previous mouse status
+            LB A 31 // Load last Mouse X
+            LB B 32 // Load last Mouse Y
+            SB A B0 // Send lst Mouse X to VGA
+            SB B B1 // Send last Mouse Y to VGA
+            LB A 22 // Load last pixel value at the location
+            SB A B2 // Restore pixel as needed
 
             // Initialise Mouse Status, X and Y
             LB A 09     // Load initial MouseStatus
             SB A 30     // Initialise MouseStatus variable
             LB A 0A     // Load initial MouseX
             SB A 31     // Initialise MouseX variable
+            SB A C1     // Set upper 8 LEDs
             LB A 0B     // Load initial MouseY
             SB A 32     // Initialise MouseY variable
+            SB A C0     // Set lower 8 LEDs
 
             RETURN
+
+/////////////////////////////////////////////////////////////////////
+// VGA Frame drawing
+VGA_LOOP:   FUNC CHECK_X        // Check X coord and set it if needed.
+RETURN_X:   FUNC CHECK_Y        // Check Y coord and set it if needed.
+RETURN_Y:   FUNC CHECK_X_LIMIT  // Check X limit reached and increment X.
+            JUMP VGA_LOOP       // Do next X check.
+VGA_DONE:   IDLE          // When VGA setup is done, wait for interrupts
 
 CHECK_X:    LB A 20     // Load current X coord
             LB B 05     // Load first X-bar coord
@@ -59,7 +72,7 @@ CHECK_Y_LIMIT:  LB A 00         // Load 0 into register
                 INC A A         // Increment Y
                 SB A 21         // Update Y coordinate
                 SB A B1         // Send new Y coordinate to VGA
-                JUMP NEXT_CHECK
+                JUMP VGA_LOOP
 
 SET_PIXEL_X:    LB A 01     // Load pixel ON value.
                 SB A B2     // Send pixel value to VGA.
@@ -71,7 +84,15 @@ SET_PIXEL_Y:    LB A 01     // Load pixel ON value.
 
 /////////////////////////////////////////////////////////////////////
 // 2. Define Mouse interrupt handling -> copy over content of mouse.asm
-MOUSE:  LB A A0 // Read Mouse Status
+MOUSE:  LB A 31 // Load last Mouse X
+        LB B 32 // Load last Mouse Y
+        SB A B0 // Send lst Mouse X to VGA
+        SB B B1 // Send last Mouse Y to VGA
+
+        LB A 22 // Load last pixel value at the location
+        SB A B2 // Restore pixel as needed
+
+        LB A A0 // Read Mouse Status
         SB A 30 // Save Mouse Status to RAM (0x30)
 
         LB A A1 // Read Mouse X
@@ -84,6 +105,12 @@ MOUSE:  LB A A0 // Read Mouse Status
 
         SB A B0 // Send X coord to VGA
         SB B B1 // Send Y coord to VGA
+
+        // Save original pixel value 
+        LB A B2 // Get current pixel value
+        SB A 22 // Store it in VGA variable region
+
+        // Turn ON location
         LB A 01 // Load pixel ON value
         SB A B2 // Send pixel ON value to VGA
 
@@ -94,4 +121,14 @@ MOUSE:  LB A A0 // Read Mouse Status
 TIMER:  LB A E0 // Read lower 8 slide switches
         SB A D0 // Send value to 7-segment display
 
-        IDLE    // Go back to IDLE state and wait for interrupts
+        IDLE
+
+//        // Reload VGA frame
+//        // Reset variables for X and Y
+//        LB A 00     // Load initial X, Y = 0
+//        SB A 20     // Initialise X = 0 for VGA
+//        SB A 21     // Initialise Y = 0 for VGA
+//
+//        JUMP VGA_LOOP // Reset VGA frame
+
+        // At the end of the VGA_LOOP we already go back to IDLE
