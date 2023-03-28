@@ -83,6 +83,7 @@ IR:     LB A 00         // Load clear packet value
         // At this point packet is generated
 SEND_IR:LB A 40         // Load finished packet
         SB A 90         // Send packet to IR
+
         RETURN
 
 // Check for FORWARD
@@ -163,10 +164,11 @@ MOUSE:  LB A A0 // Read Mouse Status
 
 /////////////////////////////////////////////////////////////////////
 // 3. Define Timer interrupt handling
-TIMER:  LB A E0 // Read lower 8 slide switches
-        SB A D0 // Send value to 7-segment display
+TIMER:  FUNC IR
 
-        FUNC IR
+        //LB A 40 // Read IR packet
+        LB A 01
+        SB A D0 // Send value to 7-segment display
 
         IDLE
 

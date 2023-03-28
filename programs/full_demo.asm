@@ -6,7 +6,7 @@
 /////////////////////////////////////////////////////////////////////
 // Initialise variables on RESET and draw VGA frame
             FUNC INIT_VARS // Initialise variables in RAM
-            JUMP VGA_LOOP   // Draw VGA frame
+            IDLE
 
 /////////////////////////////////////////////////////////////////////
 // Initialization of VGA X & Y
@@ -40,56 +40,6 @@ INIT_VARS:  LB A 00     // Load initial X, Y = 0
             //SB A 22     // Save value in RAM for turning it back on later.
 
             RETURN
-
-/////////////////////////////////////////////////////////////////////
-// VGA Frame drawing
-
-VGA_LOOP:   FUNC CHECK_X        // Check X coord and set it if needed.
-RETURN_X:   FUNC CHECK_Y        // Check Y coord and set it if needed.
-RETURN_Y:   FUNC CHECK_X_LIMIT  // Check X limit reached and increment X.
-            JUMP VGA_LOOP       // Do next X check.
-VGA_DONE:   IDLE                // When VGA setup is done, wait for interrupts
-
-CHECK_X:    LB A 20             // Load current X coord
-            LB B 05             // Load first X-bar coord
-            BEQ SET_PIXEL_X
-            LB B 06             // Load second X-bar coord
-            BEQ SET_PIXEL_X
-            RETURN
-
-CHECK_Y:    LB A 21             // Load current Y coord
-            LB B 07             // Load first Y-bar coord
-            BEQ SET_PIXEL_Y
-            LB B 08             // Load second Y-bar coord
-            BEQ SET_PIXEL_Y
-            RETURN
-    
-CHECK_X_LIMIT:  LB A 20             // Load current X coord
-                LB B 03             // Load X limit
-                BGT CHECK_Y_LIMIT   // Branch if X out of limit
-                INC A A             // Increment X
-                SB A 20             // Update X coordinate
-                SB A B0             // Send new X coordinate to VGA
-                RETURN
-
-CHECK_Y_LIMIT:  LB A 00         // Load 0 into register
-                SB A 20         // Reset X to 0
-                SB A B0         // Send new X coordinate to VGA
-                LB A 21         // Load current Y coord
-                LB B 04         // Load Y limit
-                BGT VGA_DONE    // Frame is done at this point
-                INC A A         // Increment Y
-                SB A 21         // Update Y coordinate
-                SB A B1         // Send new Y coordinate to VGA
-                JUMP VGA_LOOP
-
-SET_PIXEL_X:    LB A 01         // Load pixel ON value.
-                SB A B2         // Send pixel value to VGA.
-                JUMP RETURN_X
-
-SET_PIXEL_Y:    LB A 01         // Load pixel ON value.
-                SB A B2         // Send pixel value to VGA.
-                JUMP RETURN_Y
 
 /////////////////////////////////////////////////////////////////////
 // IR packet generation
@@ -155,7 +105,65 @@ CHECK_R:LB A 31         // Load current MouseX
 
         JUMP SEND_IR    // End of packet generation
 
+/////////////////////////////////////////////////////////////////////
+// 7-segment strobing and packet generation
 
+        // Reset 7-segment packet
+SEG7:   LB A 00         // Load packet reset value
+        SB A 50         // Clear 7-segment packet in RAM
+        
+        // Check for strobing count reached
+        LB A 51         // Load current count
+        LB B 02         // Load strobing limit (4)
+        BLT SKIP        // Skip resetting count
+        LB A 00         // Load 0 to reset count
+        SB A 51         // Save new count
+
+        // At this point register A holds the count
+
+        // Add Segment Select to packet
+SKIP:   LB B 11         // Load Segment Select mask base address
+        ADD B           // Add offset (count) to base address
+        DEREF B         // Dereference address to get mask
+        LB A 50         // Load 7-segment packet
+        OR A            // Apply mask to set which segment to display
+        SB A 50         // Save packet back to RAM
+
+        // Get command mask
+        LB A 51         // Load current count
+        LB B 0C         // Load IR command mask base address
+        ADD B           // Add offset (count) to base address
+        DEREF B         // Dereference address to get mask
+        LB A 40         // Load current IR packet
+        AND A           // Extract command bit status for segment
+        LB B 00         // Load 0 to compare to
+        BEQ OFF         // If command is not set leave it turned OFF
+
+        // Only enterred if the command for the current segment is asserted.
+        
+        // Add letter to the packet
+        LB A 51         // Load current count
+        LB B 16         // Load letter base address
+        ADD B           // Add offset (count) to base address
+        DEREF B         // Dereference address to get letter
+        LB A 50         // Load 7-segment packet
+        OR A            // Add letter to packet
+
+        // At this point register A holds the final packet
+SEND_7: SB A D0         // Send packet to 7-segment display
+        LB A 51         // Load current count
+        INC A A         // Increment count
+        SB A 51         // Save incremented count
+        
+        RETURN          // End of 7-segment display, resume operation.
+
+        // Add OFF letter to 7-segment packet
+OFF:    LB A 50         // Load packet
+        LB B 1B         // Load OFF letter
+        OR A            // Add letter to packet
+        
+        // At this point register A holds the final packet
+        JUMP SEND_7
 
 /////////////////////////////////////////////////////////////////////
 // Define Mouse interrupt handling
@@ -201,10 +209,6 @@ MOUSE:  LB A 31     // Load last Mouse X
 // Define Timer interrupt handling
 
 TIMER:  FUNC IR     // Call IR packet generation
-        LB A 40     // Load generated packet
-        SB A D0     // Send packet value to 7-segment display
-
-        //LB A E0 // Read lower 8 slide switches
-        //SB A D0 // Send value to 7-segment display
+        FUNC SEG7   // Call 7-segmetn packet generation
 
         IDLE
