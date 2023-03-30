@@ -38,6 +38,11 @@
         NOT A           // Invert pixel value
         SB A B2         // Send inverted pixel value to VGA
 
+        // CLear IR packet
+        LB A 00         // Load clear packet value
+        SB A 40         // Reset packet in RAM
+        SB A 90         // Send packet to IR
+
         IDLE            // End of variable initialisation, go to IDLE and 
                         // wait for interrupts.
 
