@@ -1,45 +1,45 @@
 /////////////////////////////////////////////////////////////////////
-// Initial design to decode VGA regions
-// Uses SEG7_RAM.mem
+// Initial design for full demonstration with pixel design for the
+// VGA. The design uses the FULL_DEMO_RAM.mem file.
 /////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
-// Initialise variables on RESET and draw VGA frame
-            FUNC INIT_VARS // Initialise variables in RAM
-            IDLE
+// Variable initialization
 
-/////////////////////////////////////////////////////////////////////
-// Initialization of VGA X & Y
-INIT_VARS:  LB A 00     // Load initial X, Y = 0
-            SB A 20     // Initialise X = 0 for VGA
-            SB A 21     // Initialise Y = 0 for VGA
+        // Initialization of VGA X & Y
+        LB A 00         // Load initial X, Y = 0
+        SB A 20         // Initialise X = 0 for VGA
+        SB A 21         // Initialise Y = 0 for VGA
+        SB A 40         // IR initial packet is also 0
 
-            // Unset previous mouse status
-            LB A 31 // Load last Mouse X
-            LB B 32 // Load last Mouse Y
-            SB A B0 // Send last Mouse X to VGA
-            SB B B1 // Send last Mouse Y to VGA
-            LB A 22 // Load last pixel value at the location
-            SB A B2 // Restore pixel as needed
+        // Unset previous mouse status
+        LB A 31         // Load last Mouse X
+        LB B 32         // Load last Mouse Y
+        SB A B0         // Send last Mouse X to VGA
+        SB B B1         // Send last Mouse Y to VGA
+        LB A 22         // Load last pixel value at the location
+        SB A B2         // Restore pixel as needed
 
-            // Initialise Mouse Status, X and Y
-            LB A 09     // Load initial MouseStatus
-            SB A 30     // Initialise MouseStatus variable
-            LB A 0A     // Load initial MouseX
-            SB A 31     // Initialise MouseX variable
-            SB A C1     // Set upper 8 LEDs
-            LB B 0B     // Load initial MouseY
-            SB B 32     // Initialise MouseY variable
-            SB B C0     // Set lower 8 LEDs
+        // Initialise Mouse Status, X and Y
+        LB A 09         // Load initial MouseStatus
+        SB A 30         // Initialise MouseStatus variable
+        LB A 0A         // Load initial MouseX
+        SB A 31         // Initialise MouseX variable
+        SB A C1         // Set upper 8 LEDs
+        LB B 0B         // Load initial MouseY
+        SB B 32         // Initialise MouseY variable
+        SB B C0         // Set lower 8 LEDs
 
-            // Show mouse pixel in the middle
-            //SB A B0     // Send initial MouseX to VGA
-            //SB B B1     // Send initial MouseY to VGA
-            //LB A 01     // Load pixel ON value
-            //SB A B2     // Send pixel ON value to VGA
-            //SB A 22     // Save value in RAM for turning it back on later.
+        // Show mouse pixel in the middle
+        SB A B0         // Send initial MouseX to VGA
+        SB B B1         // Send initial MouseY to VGA
+        LB A B2         // Load current pixel value at location
+        SB A 22         // Save value in RAM for turning it back on later.
+        NOT A           // Invert pixel value
+        SB A B2         // Send inverted pixel value to VGA
 
-            RETURN
+        IDLE            // End of variable initialisation, go to IDLE and 
+                        // wait for interrupts.
 
 /////////////////////////////////////////////////////////////////////
 // IR packet generation
@@ -169,46 +169,51 @@ OFF:    LB A 50         // Load packet
 // Define Mouse interrupt handling
 
         // Turn off last Mouse location pixel
-MOUSE:  LB A 31     // Load last Mouse X
-        LB B 32     // Load last Mouse Y
-        SB A B0     // Send last Mouse X to VGA
-        SB B B1     // Send last Mouse Y to VGA
-
-        LB A 22     // Load last pixel value at the location
-        SB A B2     // Restore pixel as needed
+MOUSE:  LB A 31         // Load last Mouse X
+        LB B 32         // Load last Mouse Y
+        SB A B0         // Send last Mouse X to VGA
+        SB B B1         // Send last Mouse Y to VGA
+        LB A 22         // Load last pixel value at the location
+        SB A B2         // Restore pixel as needed
 
         // Update MouseStatus in RAM
-        LB A A0     // Read Mouse Status
-        SB A 30     // Save Mouse Status to RAM (0x30)
+        LB A A0         // Read Mouse Status
+        SB A 30         // Save Mouse Status to RAM (0x30)
 
         // Update MouseX in RAM and LEDs
-        LB A A1     // Read Mouse X
-        SB A 31     // Save Mouse X to RAM (0x31)
-        SB A C1     // Send Mouse X to upper 8 LEDs
+        LB A A1         // Read Mouse X
+        SB A 31         // Save Mouse X to RAM (0x31)
+        SB A C1         // Send Mouse X to upper 8 LEDs
 
         // Updaet MouseX in RAM and LEDs
-        LB B A2     // Read Mouse Y
-        SB B 32     // Save Mouse Y to RAM (0x32)
-        SB B C0     // Send Mouse Y to lower 8 LEDs
+        LB B A2         // Read Mouse Y
+        SB B 32         // Save Mouse Y to RAM (0x32)
+        SB B C0         // Send Mouse Y to lower 8 LEDs
 
         // Send coordinates of Mouse to VGA
-        SB A B0     // Send X coord to VGA
-        SB B B1     // Send Y coord to VGA
+        SB A B0         // Send X coord to VGA
+        SB B B1         // Send Y coord to VGA
 
         // Save original pixel value 
-        LB A B2     // Get current pixel value
-        SB A 22     // Store it in VGA variable region
+        LB A B2         // Get current pixel value
+        SB A 22         // Store it in VGA variable region
 
-        // Turn ON Mouse location
-        LB A 01     // Load pixel ON value
-        SB A B2     // Send pixel ON value to VGA
+        // Show Mouse location by inverting pixel
+        NOT A           // Invert pixel value
+        SB A B2         // Send inverted pixel value to VGA
 
-        IDLE        // Go back to IDLE state and wait for interrupts
+        // Generate and send IR command
+        FUNC IR
+
+        IDLE            // Go back to IDLE state and wait for interrupts
 
 /////////////////////////////////////////////////////////////////////
 // Define Timer interrupt handling
 
-TIMER:  FUNC IR     // Call IR packet generation
-        FUNC SEG7   // Call 7-segmetn packet generation
+TIMER:  FUNC SEG7       // Call 7-segmetn packet generation
+        LB A E0         // Load lower 8 slide switches
+        SB A B3         // Send slide switches to VGA to enable or disable GIF.
+        LB A E1         // Load upper 8 slide switches
+        SB A B4         // Send slide switches to VGA to set the background colour
 
         IDLE
