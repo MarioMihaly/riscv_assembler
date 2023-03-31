@@ -10,25 +10,25 @@ The output of the assembler is a `.mem` file, containing the `HEX` encoding of t
 
 The basic execution of the assembler is done using the following command:
 
-```bash.sh
+```console
 $ python3 asm.py -i /path/to/input/file.asm
 ```
 
 By default, the assembler outputs a `.mem` file at the location of the provided assembly file with the same name. The extension can be specified using the `--extension` or `-e` flag.
 
-```bash.sh
+```console
 $ python3 asm.py -i /path/to/input/file.asm -e .txt
 ```
 
 Alternatively, the output file can be specified using the `--output` or `-o` flag. In this case the file extension of the provided file is used for the output file.
 
-```bash.sh
+```console
 $ python3  asm.py -i /path/to/input/file.asm -o /path/to/output/file.txt
 ```
 
 To view summary of the available options use the `--help` or `-h` flag which will display the following information:
 
-```
+```console
 $ python3 asm.py -h
 
 usage: asm.py [-h] --input INPUT [--output OUTPUT] [--extension EXTENSION] [--force]
