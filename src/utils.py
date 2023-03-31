@@ -132,7 +132,7 @@ def insert_labels(program:List[str], labels:Dict[str, int]) -> List[str]:
     joined_program = '\n'.join(program)
     
     for key in sorted(labels.keys(), key=lambda x: len(x), reverse=True):
-        joined_program = joined_program.replace(key, bin_format(labels[key]))
+        joined_program = joined_program.replace(key, hex_format(labels[key]))
         
     return joined_program.split('\n')
 
@@ -157,7 +157,7 @@ def convert_hex(num:str) -> int:
     except ValueError:
         raise exc.InvalidAddressException(f'String {num} is not a valid hexadecimal value.')
         
-def bin_format(value:Union[int, str]) -> str:
+def hex_format(value:Union[int, str]) -> str:
     '''
         Function to format integer into 8-bit hex representation.
         
@@ -257,6 +257,6 @@ def generate_ram(data_entries:List[Tuple[int, str]], filename, size=RAM_SIZE) ->
     for i, d in data_entries:
         ram[i] = d
     
-    ram = '\n'.join(map(bin_format, ram))
+    ram = '\n'.join(map(hex_format, ram))
     with open(filename, 'w') as f:
         f.write(ram)

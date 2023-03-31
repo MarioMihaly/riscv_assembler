@@ -72,10 +72,10 @@ def main():
     # Insert interrupt addresses as needed.
     functions = []
     if const.MOUSE_INTERRUPT in label_dict:
-        functions.append(([utils.bin_format(label_dict[const.MOUSE_INTERRUPT])], const.MOUSE_INTERRUPT_ADDR))
+        functions.append(([utils.hex_format(label_dict[const.MOUSE_INTERRUPT])], const.MOUSE_INTERRUPT_ADDR))
     
     if const.TIMER_INTERRUPT in label_dict:
-        functions.append(([utils.bin_format(label_dict[const.TIMER_INTERRUPT])], const.TIMER_INTERRUPT_ADDR))
+        functions.append(([utils.hex_format(label_dict[const.TIMER_INTERRUPT])], const.TIMER_INTERRUPT_ADDR))
 
     program = utils.insert_functions(program, functions)
 
