@@ -28,7 +28,7 @@ $ python3  asm.py -i /path/to/input/file.asm -o /path/to/output/file.txt
 
 To view summary of the available options use the `--help` or `-h` flag which will display the following information:
 
-```bash.sh
+```
 $ python3 asm.py -h
 
 usage: asm.py [-h] --input INPUT [--output OUTPUT] [--extension EXTENSION] [--force]
