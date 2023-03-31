@@ -2,7 +2,7 @@
 
 ## Description
 
-Assembler written using standard Python libraries for a custom, 8-bit softcore processor, implemented in `Verilog` for the `Basys 3 FPGA board`. The processor is implemented based on the `Harvard architecture` using a `128-byte RAM` and a `256-byte ROM`. The assembler supports `25` instructions and the use of `labels` to aid branching and function calls in the assembly.
+Assembler written using standard Python libraries for a custom, 8-bit softcore processor, implemented in `Verilog` for the `Basys 3 FPGA board`. The processor is implemented based on the `Harvard architecture` using a `128-byte RAM` and a `256-byte ROM`. The assembler supports `25 instructions` and the use of `labels` to aid branching and function calls in the assembly.
 
 The output of the assembler is a `.mem` file, containing the `HEX` encoding of the instructions along with comments for each instructions. The decision to generate `.mem` files instead of `.txt` files was taken as `Vivado` automatically picks up on memory files when added to the project, keeping them at the `root` of the project, making it easer to define the path to the `ROM` and `RAM` files in the project.
 
